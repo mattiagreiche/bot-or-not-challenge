@@ -216,9 +216,9 @@ def main():
         
     final_df = pd.concat(all_features, ignore_index=True)
     
-    # add Labels
-    print("Loading bot labels...")
+    # add labels
     bot_ids = load_bot_labels(BOT_FILES)
+    final_df["is_bot"] = final_df["author_id"].isin(bot_ids).astype(int)
     
     # save
     print(f"Saving {len(final_df)} rows to {OUTPUT_PATH}")
