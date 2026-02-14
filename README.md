@@ -21,7 +21,7 @@ The model is still quite consistent, though. The `Profit Score` below is the bot
 | **3** | 126 | 33 | 1 | 4 |
 | **4** | 132 | 35 | 3 | 2 |
 | **5** | 124 | 34 | 5 | 2 |
-| **AVG**| **129.2** | 172.0 | 3.0 | 2.4 |
+| **AVG**| **129.2** | 34.4 | 3.0 | 2.4 |
 
 ## What makes a Bot a Bot?
 I used SHAP (feature importance analysis) to look inside the XGBoost model and see exactly which features the model uses to convict a user.
