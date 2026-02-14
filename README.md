@@ -61,7 +61,7 @@ I used SHAP to look inside the XGBoost model and see exactly which features the 
 ## Config
 
 All paths and flags are managed in `botornot/config.py`:
-* Toggle `USE_EMBEDDINGS` (Default: `True`, I don't even think it'll work currently with this set to false).
+* Toggle `USE_EMBEDDINGS` (Default: `True`)
 * Update `INFERENCE_POST_FILES` with the target dataset.
 * Adjust the classification `THRESHOLD` (Current optimal I've found: `0.45`).
 
