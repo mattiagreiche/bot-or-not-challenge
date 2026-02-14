@@ -7,6 +7,8 @@ DIR_INFERENCE = "inference_data"
 DIR_MODELS = "models"
 
 # feature building
+# note I was in a bit of a rush, so it's entirely possible using USE_EMBEDDINGS=False right now will result
+# in all kinds of errors. (just use it, it's the whole interesting part of this model!)
 USE_EMBEDDINGS = True
 
 # training data file lists (paths under DIR_RAW)
