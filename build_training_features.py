@@ -1,40 +1,24 @@
 import os
-import build_user_features
-
-USE_EMBEDDINGS = False
-
-POST_FILES = [
-    "raw_data/dataset.posts&users.30.json",
-    "raw_data/dataset.posts&users.31.json",
-    "raw_data/dataset.posts&users.32.json",
-    "raw_data/dataset.posts&users.33.json",
-]
-
-BOT_FILES = [
-    "raw_data/dataset.bots.30.txt",
-    "raw_data/dataset.bots.31.txt",
-    "raw_data/dataset.bots.32.txt",
-    "raw_data/dataset.bots.33.txt",
-]
-
-if USE_EMBEDDINGS:
-    OUTPUT_PATH = "training_data/user_features.parquet"
-    PREVIEW_PATH = "training_data/user_features_preview.csv"
-else:
-    OUTPUT_PATH = "training_data/user_features_no_emb.parquet"
-    PREVIEW_PATH = "training_data/user_features_no_emb_preview.csv"
+from botornot.config import (
+    USE_EMBEDDINGS,
+    TRAINING_POST_FILES,
+    TRAINING_BOT_FILES,
+    TRAINING_PARQUET_PATH,
+    TRAINING_PREVIEW_PATH,
+)
+from botornot.features import build_features_df
 
 if __name__ == "__main__":
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    os.makedirs(os.path.dirname(PREVIEW_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(TRAINING_PARQUET_PATH), exist_ok=True)
+    os.makedirs(os.path.dirname(TRAINING_PREVIEW_PATH), exist_ok=True)
 
-    final_df = build_user_features.build_features_df(
-        POST_FILES, bot_files=BOT_FILES, use_embeddings=USE_EMBEDDINGS
+    final_df = build_features_df(
+        TRAINING_POST_FILES, bot_files=TRAINING_BOT_FILES, use_embeddings=USE_EMBEDDINGS
     )
 
-    print(f"Saving {len(final_df)} rows to {OUTPUT_PATH}")
-    final_df.to_parquet(OUTPUT_PATH, index=False)
+    print(f"Saving {len(final_df)} rows to {TRAINING_PARQUET_PATH}")
+    final_df.to_parquet(TRAINING_PARQUET_PATH, index=False)
 
-    final_df.head(10).to_csv(PREVIEW_PATH, index=False)
-    print(f"Saved preview to {PREVIEW_PATH}")
+    final_df.head(10).to_csv(TRAINING_PREVIEW_PATH, index=False)
+    print(f"Saved preview to {TRAINING_PREVIEW_PATH}")
     print("Done.")

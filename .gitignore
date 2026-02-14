@@ -202,6 +202,9 @@ __marimo__/
 # Training data
 raw_data/
 training_data/
+inference_data/
+models/
+predicted_bot_ids.txt
 
 # DS_Store
 .DS_Store

@@ -4,7 +4,7 @@ import string
 import json
 import math
 import pandas as pd
-from get_embeddings import get_embeddings
+from botornot.features.embeddings import get_embeddings
 
 # hi! this function extracts the features for use in the XGBoost model.
 # some features are easily extractable, and the others are embeddings from a sentence transformer model

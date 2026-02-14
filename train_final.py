@@ -3,6 +3,7 @@ import xgboost as xgb
 import joblib
 import os
 from sklearn.decomposition import PCA
+from botornot.config import TRAINING_PARQUET_PATH, ARTIFACT_PATH
 
 def train_final_ensemble(X, y):
     # cols
@@ -56,7 +57,16 @@ def train_final_ensemble(X, y):
         "threshold": THRESHOLD
     }
 
-    os.makedirs("models", exist_ok=True)
-    joblib.dump(artifact, "models/bot_detector.pkl")
+    os.makedirs(os.path.dirname(ARTIFACT_PATH), exist_ok=True)
+    joblib.dump(artifact, ARTIFACT_PATH)
 
     print("Saved ensemble artifact.")
+
+
+if __name__ == "__main__":
+    df = pd.read_parquet(TRAINING_PARQUET_PATH)
+    drop_cols = ["author_id", "is_bot"]
+    features = [c for c in df.columns if c not in drop_cols]
+    X = df[features]
+    y = df["is_bot"]
+    train_final_ensemble(X, y)

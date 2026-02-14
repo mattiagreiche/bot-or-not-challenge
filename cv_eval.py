@@ -13,11 +13,8 @@ import shap
 # then, we actually train on the full train set in a different file
 
 # config
-USE_EMBEDDINGS = True
-if USE_EMBEDDINGS:
-    INPUT_PATH = "training_data/user_features.parquet"
-else:
-    INPUT_PATH = "training_data/user_features_no_emb.parquet"
+from botornot.config import USE_EMBEDDINGS, TRAINING_PARQUET_PATH
+INPUT_PATH = TRAINING_PARQUET_PATH
 NUM_FOLDS = 5
 SHOW_SHAP = True # set to true to see SHAP graph
 
