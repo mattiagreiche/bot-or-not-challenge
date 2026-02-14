@@ -211,3 +211,6 @@ predicted_bot_ids.txt
 
 # Exploratory data analysis
 eda.ipynb
+
+# Results
+thebotfather.detections.*

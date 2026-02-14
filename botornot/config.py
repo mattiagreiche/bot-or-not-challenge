@@ -29,7 +29,8 @@ TRAINING_BOT_FILES = [
 
 # inference data file list
 INFERENCE_POST_FILES = [
-    os.path.join(DIR_RAW, "inference.posts&users.json"), # replace with the inference file at 12pm
+    #  os.path.join(DIR_RAW, "dataset.posts&users.34.json"), # english
+    os.path.join(DIR_RAW, "dataset.posts&users.35.json"), # french
 ]
 
 # derived paths: training outputs
@@ -42,11 +43,11 @@ else:
 
 # derived paths: inference outputs
 if USE_EMBEDDINGS:
-    INFERENCE_PARQUET_PATH = os.path.join(DIR_INFERENCE, "user_features.parquet")
-    INFERENCE_PREVIEW_PATH = os.path.join(DIR_INFERENCE, "user_features_preview.csv")
+    INFERENCE_PARQUET_PATH = os.path.join(DIR_INFERENCE, "user_features_35.parquet") # french right now
+    INFERENCE_PREVIEW_PATH = os.path.join(DIR_INFERENCE, "user_features_35_preview.csv")
 else:
-    INFERENCE_PARQUET_PATH = os.path.join(DIR_INFERENCE, "user_features_no_emb.parquet")
-    INFERENCE_PREVIEW_PATH = os.path.join(DIR_INFERENCE, "user_features_no_emb_preview.csv")
+    INFERENCE_PARQUET_PATH = os.path.join(DIR_INFERENCE, "user_features__35_no_emb.parquet")
+    INFERENCE_PREVIEW_PATH = os.path.join(DIR_INFERENCE, "user_features_35_no_emb_preview.csv")
 
 # model artifact and prediction output
 ARTIFACT_PATH = os.path.join(DIR_MODELS, "bot_detector.pkl")
