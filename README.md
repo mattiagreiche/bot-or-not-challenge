@@ -30,14 +30,14 @@ I used SHAP (feature importance analysis) to look inside the XGBoost model and s
 
 #### **Main takeaways:**
 1.  **Hashtag Spam (`num_hashtags_mean`):** The clearest signal. If the dots are blue (low hashtag count), the SHAP value is low (pushes prediction toward **Human**). Humans rarely use many hashtags.
-2.  **"Human Vibe?" (`PCA_Tweet_3`):** This abstract feature from the embedding compression turned out to be critical. High values (pink) strongly indicate **Human**, while low values (blue) indicate **Bot**. This suggests `PCA_Tweet_3` captures a specific semantic style (possibly conversational flow or "I" statements) that bots fail to replicate.
-3.  **"Robot" Signatures (`num_exclams_mean` and `len_std`):**
+2.  **"Human Vibe"? (`PCA_Tweet_3`):** This abstract feature from the embedding compression turns out to be important. High values (pink) strongly indicate **Human**, while low values (blue) indicate **Bot**. This suggests `PCA_Tweet_3` captures a specific semantic style (possibly conversational flow or "I" statements) that bots don't replicate.
+3.  **More "Robot" Signatures (`num_exclams_mean` and `len_std`):**
     * **`num_exclams_mean`** Low numbers of exclamation marks (blue) push to the left, almost always corresponding to **Human**. Bots can't help but use exclamation marks!
     * **`len_std`** High deviation in tweet length (pink) pushes to the left, corresponding to **Human**. This is likely because Humans are chaotic and inconsistent (could go on long tangents or simple reply "agreed"), while Bots aren't.
 4.  **Other PCA Features:** Many other abstract PCA features appear in the top 20. They're near-impossible to interpret individually, but their high rank confirms that *what* users talk about (semantics) is just as important as *how* they talk about it (metadata).
-5.  **Time Gaps (`delta_s_median` and `delta_s_std`):
-    * **`delta_s_median`**High median time gaps (pink) in posting indicate **Bot**. This suggests bots operate on a "drip" schedule (like one post every hour), whereas humans tweet in rapid-fire bursts (resulting in tiny gaps).
-    * **`delta_s_std`**High deviation (pink) indicates **Human**. Humans are more chaotic (binge-tweet during sports game then sleep), whereas bots often stick to a rigid schedule.
+5.  **Time Gaps (`delta_s_median` and `delta_s_std`):**
+    * **`delta_s_median`** High median time gaps (pink) in posting indicate **Bot**. This suggests bots operate on a "drip" schedule (like one post every hour), whereas humans tweet in rapid-fire bursts (resulting in tiny gaps).
+    * **`delta_s_std`** High deviation (pink) indicates **Human**. Humans are more chaotic (binge-tweet during sports game then sleep), whereas bots often stick to a rigid schedule.
 
 
 ## How to Run
