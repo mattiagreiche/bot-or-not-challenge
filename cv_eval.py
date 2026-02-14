@@ -139,10 +139,9 @@ def train_and_eval(X, y):
         explainer = shap.TreeExplainer(model)
         shap_values = explainer.shap_values(X_test_final)
         
-        plt.figure(figsize=(10, 8))
-        shap.summary_plot(shap_values, X_test_final, show=False)
-        plt.title("What makes a bot a bot?", fontsize=16)
-        plt.show()
+        shap.summary_plot(shap_values, X_test_final, show=False, plot_size=(12,8))
+        plt.tight_layout
+        plt.savefig("assets/shap.png")
     
 def main():
     df = pd.read_parquet(INPUT_PATH)
