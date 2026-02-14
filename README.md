@@ -1,6 +1,6 @@
 # 🤖 Bot-or-Not Challenge
 
-A bot detection pipeline that uses semantic embeddings, tweet metadata, and an ensemble of XGBoost models to predict if you're-a-bot-or-if-you're-not!
+A bot detection pipeline that uses semantic embeddings, tweet metadata, and an ensemble of XGBoost models to predict if you're-a-bot-or-if-you're-not! (Same pipeline for both English and French.)
 
 ## The Cool Parts
 
