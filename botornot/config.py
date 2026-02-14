@@ -1,10 +1,12 @@
 import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # directories
-DIR_RAW = "raw_data"
-DIR_TRAINING = "training_data"
-DIR_INFERENCE = "inference_data"
-DIR_MODELS = "models"
+DIR_RAW = os.path.join(BASE_DIR, "raw_data") # from bot-or-not challenge
+DIR_TRAINING = os.path.join(BASE_DIR, "training_data")
+DIR_INFERENCE = os.path.join(BASE_DIR, "inference_data")
+DIR_MODELS = os.path.join(BASE_DIR, "models")
 
 # feature building
 # note I was in a bit of a rush, so it's entirely possible using USE_EMBEDDINGS=False right now will result
