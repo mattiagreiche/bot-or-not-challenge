@@ -1,4 +1,3 @@
-import os
 from collections import Counter
 import re
 import string
@@ -7,44 +6,14 @@ import math
 import pandas as pd
 from get_embeddings import get_embeddings
 
-# hi! this file extracts the features from the four datasets and puts them into a parquet file for use in the XGBoost model.
-# some features are easily extractable, and the others are embeddings from a sentence transformer model. you can change if
-# you want to include these embeddings or not below in USE_EMBEDDINGS
-
-# config
-
-USE_EMBEDDINGS = True
-
-POST_FILES = [
-    "raw_data/dataset.posts&users.30.json",
-    "raw_data/dataset.posts&users.31.json",
-    "raw_data/dataset.posts&users.32.json",
-    "raw_data/dataset.posts&users.33.json",
-]
-
-BOT_FILES = [
-    "raw_data/dataset.bots.30.txt",
-    "raw_data/dataset.bots.31.txt",
-    "raw_data/dataset.bots.32.txt",
-    "raw_data/dataset.bots.33.txt",
-]
-
-if USE_EMBEDDINGS:
-    OUTPUT_PATH = "training_data/user_features.parquet"
-    PREVIEW_PATH = "training_data/user_features_preview.csv"
-else:
-    OUTPUT_PATH = "training_data/user_features_no_emb.parquet"
-    PREVIEW_PATH = "training_data/user_features_no_emb_preview.csv"
-
-# makes dirs if non-existent
-os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-os.makedirs(os.path.dirname(PREVIEW_PATH), exist_ok=True)
-
+# hi! this function extracts the features for use in the XGBoost model.
+# some features are easily extractable, and the others are embeddings from a sentence transformer model
 
 # text helpers
 URL_RE = re.compile(r"https?://\S+")
 HASHTAG_RE = re.compile(r'#\w+')
 MENTION_RE = re.compile(r"@\w+")
+NONALPHA_RE = re.compile(r'[^A-Za-z0-9_]')
 
 def count_caps(s):
     return sum(1 for c in s if 'A' <= c <= 'Z')
@@ -55,8 +24,11 @@ def count_punct(s):
 def count_exclam(s):
     return sum(1 for c in s if c == '!')
 
+def count_nonalpha(s):
+    return len(NONALPHA_RE.findall(s or "")) # avoids empty string errors
+
 def count_hashtags(s):
-    return len(HASHTAG_RE.findall(s or "")) # avoids empty string errors
+    return len(HASHTAG_RE.findall(s or ""))
 
 def char_entropy(s):
     # shannon entropy
@@ -73,7 +45,7 @@ def char_entropy(s):
 
 # core feature extraction
 
-def extract_features_from_posts(posts_list):
+def extract_features_from_posts(posts_list, use_embeddings=True):
     # users_list is the 'users' JSON
     posts = pd.DataFrame(posts_list)
     
@@ -90,6 +62,7 @@ def extract_features_from_posts(posts_list):
     posts["num_punct"] = posts["text"].map(count_punct)
     posts["num_hashtags"] = posts["text"].map(count_hashtags)
     posts["num_exclams"] = posts["text"].map(count_exclam)
+    posts["num_nonalpha"] = posts["text"].map(count_nonalpha)
     
     # time between posts
     posts["delta_s"] = posts.groupby("author_id")["created_at"].diff().dt.total_seconds()
@@ -128,7 +101,7 @@ def extract_features_from_posts(posts_list):
     posts_agg = posts_agg.drop(columns=["created_at_min", "created_at_max"])
     posts_agg = posts_agg.fillna(0) # fill NaNs from std dev calculations on single posts
     
-    if not USE_EMBEDDINGS:
+    if not use_embeddings:
         return posts_agg
     
     # get LM embeddings
@@ -139,7 +112,7 @@ def extract_features_from_posts(posts_list):
     
     return post_feats
 
-def extract_features_from_users(users_list):
+def extract_features_from_users(users_list, use_embeddings=True):
     users = pd.DataFrame(users_list)
     
     # id match
@@ -164,6 +137,7 @@ def extract_features_from_users(users_list):
     users["description_has_url"] = d.str.contains(URL_RE).fillna(False).astype(int)
     users["description_has_hashtag"] = d.str.contains(HASHTAG_RE).fillna(False).astype(int)
     users["description_has_mention"] = d.str.contains(MENTION_RE).fillna(False).astype(int)
+    users["description_nonalpha"] = d.str.count(r"[^A-Za-z0-9_]")
     users["missing_description"] = (d == "").astype(int)    
     
     # location features
@@ -171,7 +145,7 @@ def extract_features_from_users(users_list):
     users["location_present"] = (loc != "").astype(int)
     users["location_len"] = loc.str.len()
     
-    if not USE_EMBEDDINGS:
+    if not use_embeddings:
         # keep only useful features (no embeddings) + author_id
         keep_cols = [
             "author_id",
@@ -179,6 +153,7 @@ def extract_features_from_users(users_list):
             "name_len", "name_nonalpha", "name_word_count", 
             "description_len", "description_has_url", "description_has_hashtag", 
             "description_has_mention", "missing_description",
+            "description_nonalpha",
             "location_present", "location_len",
         ]
         return users[keep_cols]
@@ -203,18 +178,18 @@ def extract_features_from_users(users_list):
     
     return user_feats
 
-def process_single_file(filepath):
+def process_single_file(filepath, use_embeddings=True):
     print(f"Processing {filepath}...")
     with open(filepath, 'r') as f:
         data = json.load(f)
     
     # extract posts features
     posts_data = data.get('posts', []) 
-    posts_df = extract_features_from_posts(posts_data)
+    posts_df = extract_features_from_posts(posts_data, use_embeddings=use_embeddings)
     
     # extract users features
     users_data = data.get('users', [])
-    users_df = extract_features_from_users(users_data)
+    users_df = extract_features_from_users(users_data, use_embeddings=use_embeddings)
     
     # merge (inner join to ensure only keep users we have full data for)
     merged = pd.merge(users_df, posts_df, on="author_id", how="inner")
@@ -232,29 +207,13 @@ def load_bot_labels(bot_files):
     return bot_ids
 
 
-
-def main():
+def build_features_df(post_files, bot_files=None, use_embeddings=True):
     all_features = []
-    
-    # process all data files
-    for post_file in POST_FILES:
-        df = process_single_file(post_file)
+    for post_file in post_files:
+        df = process_single_file(post_file, use_embeddings=use_embeddings)
         all_features.append(df)
-        
     final_df = pd.concat(all_features, ignore_index=True)
-    
-    # add labels
-    bot_ids = load_bot_labels(BOT_FILES)
-    final_df["is_bot"] = final_df["author_id"].isin(bot_ids).astype(int)
-    
-    # save
-    print(f"Saving {len(final_df)} rows to {OUTPUT_PATH}")
-    final_df.to_parquet(OUTPUT_PATH, index=False)
-    
-    # prev
-    final_df.head(10).to_csv(PREVIEW_PATH, index=False)
-    print(f"Saved preview to {PREVIEW_PATH}")
-    print("Done.")
-
-if __name__ == "__main__":
-    main()
+    if bot_files is not None:
+        bot_ids = load_bot_labels(bot_files)
+        final_df["is_bot"] = final_df["author_id"].isin(bot_ids).astype(int)
+    return final_df
